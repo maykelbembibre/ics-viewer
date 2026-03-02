@@ -2,11 +2,11 @@ package ics_viewer.logic.text;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.Temporal;
 
 /**
  * Class for formatting dates and times using the formats of calendar
@@ -27,14 +27,13 @@ public class TxtDateFormatter {
 		this.zoneId = zoneId;
 	}
 	
-	public ZonedDateTime parseTxtDate(String dateString) {
-		ZonedDateTime result = null;
+	public LocalDate parseTxtDate(String dateString) {
+		LocalDate result = null;
 		if (dateString == null) {
 			result = null;
 		} else {
 			try {
-				LocalDate localDate = LocalDate.parse(dateString, TXT_DATE_FORMATTER);
-				result = ZonedDateTime.of(localDate, LocalTime.MIDNIGHT, this.zoneId);
+				result = LocalDate.parse(dateString, TXT_DATE_FORMATTER);
 			} catch (DateTimeParseException e) {
 				result = null;
 			}
@@ -77,12 +76,20 @@ public class TxtDateFormatter {
 		return result;
 	}
 	
-	public ZonedDateTime parseTxtDateWithOrWithoutTime(String dateWithOrWithoutTimeString) {
-		ZonedDateTime result = parseTxtDate(dateWithOrWithoutTimeString);
+	public Temporal parseTxtDateWithOrWithoutTime(String dateWithOrWithoutTimeString) {
+		Temporal result = parseTxtDate(dateWithOrWithoutTimeString);
 		if (result == null) {
 			result = parseTxtDateTime(dateWithOrWithoutTimeString);
 		}
 		return result;
+	}
+	
+	public boolean hasTime(ZonedDateTime zonedDateTime) {
+		int hour = zonedDateTime.getHour();
+		int minute = zonedDateTime.getMinute();
+		int second = zonedDateTime.getSecond();
+		int nano = zonedDateTime.getNano();
+		return hour != 0 || minute != 0 || second != 0 || nano != 0;
 	}
 	
 	public String formatTxtDateWithOrWithoutTime(ZonedDateTime zonedDateTime) {
@@ -90,14 +97,10 @@ public class TxtDateFormatter {
 		if (zonedDateTime == null) {
 			result = null;
 		} else {
-			int hour = zonedDateTime.getHour();
-			int minute = zonedDateTime.getMinute();
-			int second = zonedDateTime.getSecond();
-			int nano = zonedDateTime.getNano();
-			if (hour == 0 && minute == 0 && second == 0 && nano == 0) {
-				result = formatTxtDate(zonedDateTime);
-			} else {
+			if (this.hasTime(zonedDateTime)) {
 				result = formatTxtDateTime(zonedDateTime);
+			} else {
+				result = formatTxtDate(zonedDateTime);
 			}
 		}
 		return result;

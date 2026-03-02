@@ -2,7 +2,8 @@ package ics_viewer.logic.text.converters;
 
 import java.time.DayOfWeek;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -67,12 +68,13 @@ public class TxtToIcs {
 		
 		// Create the event
 		String eventName = txtEvent.getTitle();
-		ZonedDateTime start = this.txtDateFormatter.parseTxtDateWithOrWithoutTime(dateLine.getFrom());
+		Temporal start = this.txtDateFormatter.parseTxtDateWithOrWithoutTime(dateLine.getFrom());
 		if (start != null) {
-			ZonedDateTime end;
+			Temporal end;
 			String to = dateLine.getTo();
 			if (to == null) {
-				end = null;
+				// All-day event.
+				end = start.plus(1, ChronoUnit.DAYS);
 			} else {
 				end = this.txtDateFormatter.parseTxtDateWithOrWithoutTime(to);
 			}
@@ -127,12 +129,11 @@ public class TxtToIcs {
 		return result;
 	}
 	
-	private static Month monthToIcs(java.time.Month javaMonth) {
-		int monthNumber = javaMonth.getValue();
+	private static Month monthToIcs(int monthNumber) {
 		return new Month(monthNumber);
 	}
 	
-	private void addRecurrence(ZonedDateTime start, VEvent meeting, TxtEventRecurrence txtRecurrence) {
+	private void addRecurrence(Temporal start, VEvent meeting, TxtEventRecurrence txtRecurrence) {
 		Integer txtValue = txtRecurrence.getRecurrenceValue();
 		String txtUnit = txtRecurrence.getRecurrenceUnit();
 		String txtDay = txtRecurrence.getRecurrenceDay();
@@ -148,7 +149,7 @@ public class TxtToIcs {
 				builder.interval(txtValue);
 			}
 			Matcher occurrencesMatcher;
-			ZonedDateTime untilDate = this.txtDateFormatter.parseTxtDate(txtUntil);
+			Temporal untilDate = this.txtDateFormatter.parseTxtDate(txtUntil);
 			if (txtUntil == null) {
 				occurrencesMatcher = null;
 			} else {
@@ -181,7 +182,7 @@ public class TxtToIcs {
 				} else if (frequency == Frequency.YEARLY) {
 					// Events created on the calendar app as yearly for the same day are
 					// interpreted in ICS as recurring yearly by month.
-					builder.monthList(Collections.singletonList(monthToIcs(start.getMonth())));
+					builder.monthList(Collections.singletonList(monthToIcs(start.get(ChronoField.MONTH_OF_YEAR))));
 				}
 			}
 			Recur<Temporal> recur = builder.build();

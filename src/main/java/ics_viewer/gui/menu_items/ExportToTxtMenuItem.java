@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import ics_viewer.gui.AppWindow;
+import ics_viewer.gui.Tools;
 import ics_viewer.logic.DateOperations;
 import ics_viewer.logic.text.TxtCalendarWriter;
 import ics_viewer.logic.text.converters.IcsToText;
@@ -42,7 +43,16 @@ public class ExportToTxtMenuItem extends CalendarSaveMenuItem {
     		for (TxtCalendarEvent txtCalendarEvent : icsToText) {
     			txtCalendarWriter.writeEvent(txtCalendarEvent);
     		}
+    		Tools.printMessage(appWindow, "Export finished successfully. Check the file " + file.getName() + ".");
     	} catch (IOException ex) {
+    		String exMessage = ex.getMessage();
+    		String message;
+    		if (exMessage == null || exMessage.isEmpty()) {
+    			message = "unknown error: " + ex.getClass().getName();
+    		} else {
+    			message = ex.getMessage();
+    		}
+    		Tools.printMessage(appWindow, "There was an error during export: " + message + ".");
     		ex.printStackTrace();
 		} finally {
 			if (txtCalendarWriter != null) {

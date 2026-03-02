@@ -22,6 +22,10 @@ public class Tools {
 	public static final Locale TXT_FILE_LOCALE = Locale.ENGLISH;
 	private static final RuleBasedNumberFormat ORDINAL_STRING_FORMATTER = new RuleBasedNumberFormat(TXT_FILE_LOCALE, RuleBasedNumberFormat.SPELLOUT );
 	
+	public static String removeBlankLines(String string) {
+		return string.replaceAll("\\n{2,}", "\n");
+	}
+	
 	public static Integer toInteger(String string) {
 		Integer result;
 		if (string == null) {

@@ -107,20 +107,26 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		}
 		DtStart<Temporal> dtStart = vEvent.getDateTimeStart();
 		DtEnd<Temporal> dtEnd = vEvent.getDateTimeEnd();
-		Optional<ZonedDateTime> zonedDateTimeFrom, zonedDateTimeTo;
+		Optional<ZonedDateTime> opZonedDateTimeFrom, opZonedDateTimeTo;
+		ZonedDateTime zonedDateTimeFrom;
 		String from, to;
-		zonedDateTimeFrom = DateOperations.getZonedDateTime(dtStart);
-		if (zonedDateTimeFrom.isPresent()) {
-			from = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeFrom.get());
+		opZonedDateTimeFrom = DateOperations.getZonedDateTime(dtStart);
+		if (opZonedDateTimeFrom.isPresent()) {
+			zonedDateTimeFrom = opZonedDateTimeFrom.get();
 		} else {
+			zonedDateTimeFrom = opZonedDateTimeFrom.get();
+		}
+		if (zonedDateTimeFrom == null) {
 			from = null;
+		} else {
+			from = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeFrom);			
 		}
 		Optional<Property> opSummaryProp = vEvent.getProperty(Property.SUMMARY);
 		Property summaryProp;
 		String summary;
 		if (opSummaryProp.isPresent()) {
 			summaryProp = opSummaryProp.get();
-			summary = summaryProp.getValue();
+			summary = Tools.removeBlankLines(summaryProp.getValue());
 		} else {
 			summary = null;
 		}
@@ -128,9 +134,18 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		if (from == null || summary == null) {
 			result = null;
 		} else {
-			zonedDateTimeTo = DateOperations.getZonedDateTime(dtEnd);
-			if (zonedDateTimeTo.isPresent()) {
-				to = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeTo.get());
+			opZonedDateTimeTo = DateOperations.getZonedDateTime(dtEnd);
+			if (opZonedDateTimeTo.isPresent()) {
+				ZonedDateTime zonedDateTimeTo = opZonedDateTimeTo.get();
+				if (
+					!this.txtDateFormatter.hasTime(zonedDateTimeFrom) &&
+					!this.txtDateFormatter.hasTime(zonedDateTimeTo) &&
+					zonedDateTimeFrom.plusDays(1).equals(zonedDateTimeTo)) {
+					// All-day event.
+					to = null;
+				} else {
+					to = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeTo);
+				}
 			} else {
 				to = null;
 			}
@@ -139,7 +154,7 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 			String description;
 			if (opDescriptionProp.isPresent()) {
 				descriptionProp = opDescriptionProp.get();
-				description = descriptionProp.getValue();
+				description = Tools.removeBlankLines(descriptionProp.getValue());
 			} else {
 				description = null;
 			}
