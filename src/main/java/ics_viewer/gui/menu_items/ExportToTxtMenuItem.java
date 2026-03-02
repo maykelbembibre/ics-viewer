@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import ics_viewer.gui.AppWindow;
+import ics_viewer.logic.DateOperations;
 import ics_viewer.logic.text.TxtCalendarWriter;
 import ics_viewer.logic.text.converters.IcsToText;
 import ics_viewer.logic.text.models.TxtCalendarEvent;
@@ -35,7 +36,7 @@ public class ExportToTxtMenuItem extends CalendarSaveMenuItem {
     	FileWriter fileWriter = null;
     	TxtCalendarWriter txtCalendarWriter = null;
     	try {
-    		IcsToText icsToText = new IcsToText(calendar);
+    		IcsToText icsToText = new IcsToText(DateOperations.getCurrentZone(), calendar);
     		fileWriter = new FileWriter(file);
     		txtCalendarWriter = new TxtCalendarWriter(fileWriter);
     		for (TxtCalendarEvent txtCalendarEvent : icsToText) {

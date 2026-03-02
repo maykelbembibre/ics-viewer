@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.Optional;
 
-import ics_viewer.logic.text.DateTools;
 import net.fortuna.ical4j.model.property.DateProperty;
 
 public class DateOperations {
@@ -30,7 +29,7 @@ public class DateOperations {
 				result = Optional.of(getZonedDateTime((LocalDateTime) temporal));
 			} else if (temporal instanceof OffsetDateTime) {
 				OffsetDateTime offsetDateTime = (OffsetDateTime) temporal;
-				result = Optional.of(offsetDateTime.atZoneSameInstant(DateTools.MY_ZONE_ID));
+				result = Optional.of(offsetDateTime.atZoneSameInstant(getCurrentZone()));
 			} else {
 				result = Optional.empty();
 			}
@@ -38,19 +37,19 @@ public class DateOperations {
 		return result;
 	}
 	
-	public static String formatDateTime(ZonedDateTime zonedDateTime) {
+	public static String formatUserDateTime(ZonedDateTime zonedDateTime) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 		return zonedDateTime.format(formatter);
+	}
+	
+	public static ZoneId getCurrentZone() {
+		ZonedDateTime now = ZonedDateTime.now();
+        return now.getZone();
 	}
 	
 	private static LocalDateTime getLocalDateTime(LocalDate localDate) {
 		LocalTime localTime = LocalTime.of(0, 0);
 		return LocalDateTime.of(localDate, localTime);
-	}
-	
-	private static ZoneId getCurrentZone() {
-		ZonedDateTime now = ZonedDateTime.now();
-        return now.getZone();
 	}
 	
 	private static ZonedDateTime getZonedDateTime(LocalDateTime localDateTime) {

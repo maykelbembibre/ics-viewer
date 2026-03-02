@@ -68,7 +68,7 @@ public class EventListModel implements Comparable<EventListModel>, Displayable {
 	 */
 	@Override
 	public String displayAsString() {
-		return DateOperations.formatDateTime(this.getDateTimeStart())
+		return DateOperations.formatUserDateTime(this.getDateTimeStart())
     	+ ": " + this.getSummary();
 	}
 

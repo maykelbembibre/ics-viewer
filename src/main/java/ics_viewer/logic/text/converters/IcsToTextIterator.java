@@ -1,5 +1,6 @@
 package ics_viewer.logic.text.converters;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import ics_viewer.logic.DateOperations;
-import ics_viewer.logic.text.DateTools;
+import ics_viewer.logic.text.TxtDateFormatter;
 import ics_viewer.logic.text.Tools;
 import ics_viewer.logic.text.models.TxtCalendarEvent;
 import ics_viewer.logic.text.models.TxtEventDateLine;
@@ -35,10 +36,12 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		ALWAYS_HAVE_DAY.add(Frequency.YEARLY);
 	}
 	private final VEventIterator vEventIterator;
+	private final TxtDateFormatter txtDateFormatter;
 	private TxtCalendarEvent nextTxtCalendarEvent;
 	
-	public IcsToTextIterator(VEventIterator vEventIterator) {
+	public IcsToTextIterator(ZoneId zoneId, VEventIterator vEventIterator) {
 		this.vEventIterator = vEventIterator;
+		this.txtDateFormatter = new TxtDateFormatter(zoneId);
 	}
 
 	@Override
@@ -63,7 +66,7 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		return DateOperations.getZonedDateTime(dateProperty).orElse(null);
 	}
 	
-	private static TxtCalendarEvent convert(VEvent vEvent) {
+	private TxtCalendarEvent convert(VEvent vEvent) {
 		Optional<Property> opRRuleProp = vEvent.getProperty(Property.RRULE);
 		TxtEventRecurrence recurrence;
 		if (opRRuleProp.isPresent() && opRRuleProp.get() instanceof RRule) {
@@ -98,7 +101,7 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 					recurrenceUntil = count + " occurrences";
 				} else if (until instanceof ZonedDateTime) {
 					ZonedDateTime zonedDateTime = (ZonedDateTime) until;
-					recurrenceUntil = DateTools.formatTxtDate(zonedDateTime);
+					recurrenceUntil = this.txtDateFormatter.formatTxtDate(zonedDateTime);
 				} else {
 					recurrenceUntil = null;
 				}
@@ -112,7 +115,7 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		ZonedDateTime zonedDateTimeFrom, zonedDateTimeTo;
 		String from, to;
 		zonedDateTimeFrom = toZonedDateTime(dtStart);
-		from = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTimeFrom);
+		from = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeFrom);
 		Optional<Property> opSummaryProp = vEvent.getProperty(Property.SUMMARY);
 		Property summaryProp;
 		String summary;
@@ -127,7 +130,7 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 			result = null;
 		} else {
 			zonedDateTimeTo = toZonedDateTime(dtEnd);
-			to = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTimeTo);
+			to = this.txtDateFormatter.formatTxtDateWithOrWithoutTime(zonedDateTimeTo);
 			Optional<Property> opDescriptionProp = vEvent.getProperty(Property.DESCRIPTION);
 			Property descriptionProp;
 			String description;

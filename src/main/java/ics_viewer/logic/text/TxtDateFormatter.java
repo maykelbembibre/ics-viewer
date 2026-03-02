@@ -8,21 +8,33 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class DateTools {
+/**
+ * Class for formatting dates and times using the formats of calendar
+ * TXT files.
+ */
+public class TxtDateFormatter {
 
-	public static final String MY_TIME_ZONE_NAME = "Europe/Madrid";
-	public static final ZoneId MY_ZONE_ID = ZoneId.of(MY_TIME_ZONE_NAME);
 	private static final DateTimeFormatter TXT_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final DateTimeFormatter TXT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 	
-	public static ZonedDateTime parseTxtDate(String dateString) {
+	private final ZoneId zoneId;
+	
+	/**
+	 * Creates a new formatter for dates and times of TXT calendar files.
+	 * @param zoneId The time zone this formatter will work with.
+	 */
+	public TxtDateFormatter(ZoneId zoneId) {
+		this.zoneId = zoneId;
+	}
+	
+	public ZonedDateTime parseTxtDate(String dateString) {
 		ZonedDateTime result = null;
 		if (dateString == null) {
 			result = null;
 		} else {
 			try {
 				LocalDate localDate = LocalDate.parse(dateString, TXT_DATE_FORMATTER);
-				result = ZonedDateTime.of(localDate, LocalTime.MIDNIGHT, MY_ZONE_ID);
+				result = ZonedDateTime.of(localDate, LocalTime.MIDNIGHT, this.zoneId);
 			} catch (DateTimeParseException e) {
 				result = null;
 			}
@@ -30,7 +42,7 @@ public class DateTools {
 		return result;
 	}
 	
-	public static String formatTxtDate(ZonedDateTime zonedDateTime) {
+	public String formatTxtDate(ZonedDateTime zonedDateTime) {
 		String result;
 		if (zonedDateTime == null) {
 			result = null;
@@ -40,14 +52,14 @@ public class DateTools {
 		return result;
 	}
 	
-	public static ZonedDateTime parseTxtDateTime(String dateTimeString) {
+	public ZonedDateTime parseTxtDateTime(String dateTimeString) {
 		ZonedDateTime result = null;
 		if (dateTimeString == null) {
 			result = null;
 		} else {
 			try {
 				LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, TXT_DATE_TIME_FORMATTER);
-				result = ZonedDateTime.of(localDateTime, MY_ZONE_ID);
+				result = ZonedDateTime.of(localDateTime, this.zoneId);
 			} catch (DateTimeParseException e) {
 				result = null;
 			}
@@ -55,7 +67,7 @@ public class DateTools {
 		return result;
 	}
 	
-	public static String formatTxtDateTime(ZonedDateTime zonedDateTime) {
+	public String formatTxtDateTime(ZonedDateTime zonedDateTime) {
 		String result;
 		if (zonedDateTime == null) {
 			result = null;
@@ -65,7 +77,7 @@ public class DateTools {
 		return result;
 	}
 	
-	public static ZonedDateTime parseTxtDateWithOrWithoutTime(String dateWithOrWithoutTimeString) {
+	public ZonedDateTime parseTxtDateWithOrWithoutTime(String dateWithOrWithoutTimeString) {
 		ZonedDateTime result = parseTxtDate(dateWithOrWithoutTimeString);
 		if (result == null) {
 			result = parseTxtDateTime(dateWithOrWithoutTimeString);
@@ -73,7 +85,7 @@ public class DateTools {
 		return result;
 	}
 	
-	public static String formatTxtDateWithOrWithoutTime(ZonedDateTime zonedDateTime) {
+	public String formatTxtDateWithOrWithoutTime(ZonedDateTime zonedDateTime) {
 		String result;
 		if (zonedDateTime == null) {
 			result = null;

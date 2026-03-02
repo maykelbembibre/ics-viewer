@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import ics_viewer.gui.AppWindow;
+import ics_viewer.logic.DateOperations;
 import ics_viewer.logic.text.TxtCalendarReader;
 import ics_viewer.logic.text.converters.TxtToIcs;
 import ics_viewer.logic.text.models.TxtCalendarEvent;
@@ -38,7 +39,7 @@ public class ImportFromTxtMenuItem extends AbstractOpenMenuItem {
     		fileReader = new FileReader(file);
     		txtCalendarFileReader = new TxtCalendarReader(fileReader);
     		TxtCalendarEvent event;
-    		TxtToIcs txtToIcs = new TxtToIcs();
+    		TxtToIcs txtToIcs = new TxtToIcs(DateOperations.getCurrentZone());
     		while ((event = txtCalendarFileReader.readEvent()) != null) {
     			System.out.println(event);
     			txtToIcs.addTxtEvent(event);

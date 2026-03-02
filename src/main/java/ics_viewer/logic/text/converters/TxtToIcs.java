@@ -1,6 +1,7 @@
 package ics_viewer.logic.text.converters;
 
 import java.time.DayOfWeek;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.Collections;
@@ -9,8 +10,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ics_viewer.logic.text.DateTools;
 import ics_viewer.logic.text.Tools;
+import ics_viewer.logic.text.TxtDateFormatter;
 import ics_viewer.logic.text.models.TxtCalendarEvent;
 import ics_viewer.logic.text.models.TxtEventDateLine;
 import ics_viewer.logic.text.models.TxtEventRecurrence;
@@ -48,26 +49,33 @@ public class TxtToIcs {
 	}
 	private static final Pattern TXT_OCCURRENCES_PATTERN = Pattern.compile("(\\d+)\\s+\\w+");
 	private static final Pattern TXT_DAY_PATTERN = Pattern.compile("(?:every\\s+(\\w+)\\s+(\\w+)|on\\s(\\w+)).*");
-	private static final TimeZoneRegistry REGISTRY = TimeZoneRegistryFactory.getInstance().createRegistry();
-	private static final TimeZone TIMEZONE = REGISTRY.getTimeZone(DateTools.MY_TIME_ZONE_NAME);
-	private static final VTimeZone V_TIME_ZONE = TIMEZONE.getVTimeZone();
 	private static final UidGenerator UID_GENERATOR = new RandomUidGenerator();
-	
+	private static final TimeZoneRegistry REGISTRY = TimeZoneRegistryFactory.getInstance().createRegistry();
+	private final TimeZone TIMEZONE;
+	private final VTimeZone V_TIME_ZONE;
+	private final TxtDateFormatter txtDateFormatter;
 	private final Calendar calendar = createCalendar();
 
+	public TxtToIcs(ZoneId zoneId) {
+		String zoneIdStringId = zoneId.getId();
+		this.TIMEZONE = REGISTRY.getTimeZone(zoneIdStringId);
+		this.V_TIME_ZONE = TIMEZONE.getVTimeZone();
+		this.txtDateFormatter = new TxtDateFormatter(zoneId);
+	}
+	
 	public void addTxtEvent(TxtCalendarEvent txtEvent) {
 		TxtEventDateLine dateLine = txtEvent.getDateLine();
 		
 		// Create the event
 		String eventName = txtEvent.getTitle();
-		ZonedDateTime start = DateTools.parseTxtDateWithOrWithoutTime(dateLine.getFrom());
+		ZonedDateTime start = this.txtDateFormatter.parseTxtDateWithOrWithoutTime(dateLine.getFrom());
 		if (start != null) {
 			ZonedDateTime end;
 			String to = dateLine.getTo();
 			if (to == null) {
 				end = null;
 			} else {
-				end = DateTools.parseTxtDateWithOrWithoutTime(to);
+				end = this.txtDateFormatter.parseTxtDateWithOrWithoutTime(to);
 			}
 			VEvent meeting;
 			if (end == null) {
@@ -125,7 +133,7 @@ public class TxtToIcs {
 		return new Month(monthNumber);
 	}
 	
-	private static void addRecurrence(ZonedDateTime start, VEvent meeting, TxtEventRecurrence txtRecurrence) {
+	private void addRecurrence(ZonedDateTime start, VEvent meeting, TxtEventRecurrence txtRecurrence) {
 		Integer txtValue = txtRecurrence.getRecurrenceValue();
 		String txtUnit = txtRecurrence.getRecurrenceUnit();
 		String txtDay = txtRecurrence.getRecurrenceDay();
@@ -141,7 +149,7 @@ public class TxtToIcs {
 				builder.interval(txtValue);
 			}
 			Matcher occurrencesMatcher;
-			ZonedDateTime untilDate = DateTools.parseTxtDate(txtUntil);
+			ZonedDateTime untilDate = this.txtDateFormatter.parseTxtDate(txtUntil);
 			if (txtUntil == null) {
 				occurrencesMatcher = null;
 			} else {
