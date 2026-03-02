@@ -9,19 +9,22 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import ics_viewer.gui.components.AppWindowContentPane;
+import ics_viewer.gui.components.PropertyBackedJFileChooser;
 import ics_viewer.gui.menu_items.CloseMenuItem;
 import ics_viewer.gui.menu_items.OpenMenuItem;
+import ics_viewer.logic.PropertyManager;
 
 public class AppWindow extends JFrame {
 
 	private static final long serialVersionUID = -706300805865875624L;
-
+	private static final String APP_NAME = "ICS viewer";
 	private final AppWindowContentPane contentPane;
+	private final PropertyManager propertyManager = new PropertyManager(APP_NAME);
 	
 	/**
 	 * An instance of a {@link JFileChooser to be re-used across the app.
 	 */
-	private final JFileChooser fileChooser = new JFileChooser();
+	private final JFileChooser fileChooser = new PropertyBackedJFileChooser(this.propertyManager, "last.directory");
 	
 	private File file;
 	
@@ -54,7 +57,7 @@ public class AppWindow extends JFrame {
 	
 	@Override
 	public void setTitle(String title) {
-		StringBuilder titleBuilder = new StringBuilder("ICS viewer");
+		StringBuilder titleBuilder = new StringBuilder(APP_NAME);
 		if (title != null && !title.isEmpty()) {
 			titleBuilder.append(" - " + title);
 		}

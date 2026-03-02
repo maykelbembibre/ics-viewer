@@ -3,6 +3,7 @@ package ics_viewer.gui.components;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,6 +102,7 @@ public class AppWindowContentPane extends JPanel {
 					eventListModels.add(optionalEventListModel.get());
 				}
 			}
+			Collections.sort(eventListModels);
 			this.listModel.addAll(eventListModels);
 		}
 		this.noEventsJLabel.setVisible(empty);

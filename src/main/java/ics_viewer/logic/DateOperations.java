@@ -3,12 +3,14 @@ package ics_viewer.logic;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.Optional;
 
+import ics_viewer.logic.text.DateTools;
 import net.fortuna.ical4j.model.property.DateProperty;
 
 public class DateOperations {
@@ -26,6 +28,9 @@ public class DateOperations {
 				result = Optional.of(getZonedDateTime(localDateTime));
 			} else if (temporal instanceof LocalDateTime) {
 				result = Optional.of(getZonedDateTime((LocalDateTime) temporal));
+			} else if (temporal instanceof OffsetDateTime) {
+				OffsetDateTime offsetDateTime = (OffsetDateTime) temporal;
+				result = Optional.of(offsetDateTime.atZoneSameInstant(DateTools.MY_ZONE_ID));
 			} else {
 				result = Optional.empty();
 			}
