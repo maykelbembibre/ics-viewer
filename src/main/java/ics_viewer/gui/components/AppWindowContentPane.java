@@ -20,6 +20,8 @@ import javax.swing.text.JTextComponent;
 import ics_viewer.gui.AppWindow;
 import ics_viewer.gui.components.calendar_event_list.CalendarEventJList;
 import ics_viewer.gui.models.EventListModel;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.VEvent;
 
 public class AppWindowContentPane extends JPanel {
@@ -28,6 +30,12 @@ public class AppWindowContentPane extends JPanel {
 	
 	static final Color TRANSPARENT = new Color(255, 255, 255, 0);
 	private static final int GAP = 5;
+	
+	/**
+	 * This is the iCal calendar whose events are currently displayed in the
+	 * app window.
+	 */
+	private Calendar calendar;
 	
 	/**
 	 * This is the collection of calendar events that is currently open and
@@ -72,11 +80,43 @@ public class AppWindowContentPane extends JPanel {
 	}
 	
 	/**
+	 * Returns whether this instance has calendar events currently.
+	 * @return <code>true</code> or <code>false</code>.
+	 */
+	public boolean hasCalendarEvents() {
+		return this.events != null && !this.events.isEmpty();
+	}
+	
+	/**
+	 * Returns the currently open calendar in this instance.
+	 * @return The currently open calendar in this instance.
+	 */
+	public Calendar getCalendar() {
+		return calendar;
+	}
+
+	/**
+	 * Sets the currently open calendar in this instance and displays its
+	 * events.
+	 * @param calendar The calendar.
+	 */
+	public void setCalendar(Calendar calendar) {
+		this.calendar = calendar;
+		List<VEvent> events;
+		if (calendar == null) {
+			events = null;
+		} else {
+			events = calendar.getComponents(Component.VEVENT);
+		}
+		this.setCalendarEvents(events);
+	}
+
+	/**
 	 * Sets the collection of calendar events of the app, making it visible
 	 * in the app window.
 	 * @param contactIterable The collection of calendar events.
 	 */
-	public void setCalendarEvents(List<VEvent> events) {
+	private void setCalendarEvents(List<VEvent> events) {
 		this.events = events;
 		this.reloadList();
 		this.updateDetails();

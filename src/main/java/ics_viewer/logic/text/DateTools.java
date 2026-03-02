@@ -31,7 +31,13 @@ public class DateTools {
 	}
 	
 	public static String formatTxtDate(ZonedDateTime zonedDateTime) {
-		return TXT_DATE_FORMATTER.format(zonedDateTime);
+		String result;
+		if (zonedDateTime == null) {
+			result = null;
+		} else {
+			result = TXT_DATE_FORMATTER.format(zonedDateTime);
+		}
+		return result;
 	}
 	
 	public static ZonedDateTime parseTxtDateTime(String dateTimeString) {
@@ -50,7 +56,13 @@ public class DateTools {
 	}
 	
 	public static String formatTxtDateTime(ZonedDateTime zonedDateTime) {
-		return TXT_DATE_TIME_FORMATTER.format(zonedDateTime);
+		String result;
+		if (zonedDateTime == null) {
+			result = null;
+		} else {
+			result = TXT_DATE_TIME_FORMATTER.format(zonedDateTime);
+		}
+		return result;
 	}
 	
 	public static ZonedDateTime parseTxtDateWithOrWithoutTime(String dateWithOrWithoutTimeString) {
@@ -63,14 +75,18 @@ public class DateTools {
 	
 	public static String formatTxtDateWithOrWithoutTime(ZonedDateTime zonedDateTime) {
 		String result;
-		int hour = zonedDateTime.getHour();
-		int minute = zonedDateTime.getMinute();
-		int second = zonedDateTime.getSecond();
-		int nano = zonedDateTime.getNano();
-		if (hour == 0 && minute == 0 && second == 0 && nano == 0) {
-			result = formatTxtDate(zonedDateTime);
+		if (zonedDateTime == null) {
+			result = null;
 		} else {
-			result = formatTxtDateTime(zonedDateTime);
+			int hour = zonedDateTime.getHour();
+			int minute = zonedDateTime.getMinute();
+			int second = zonedDateTime.getSecond();
+			int nano = zonedDateTime.getNano();
+			if (hour == 0 && minute == 0 && second == 0 && nano == 0) {
+				result = formatTxtDate(zonedDateTime);
+			} else {
+				result = formatTxtDateTime(zonedDateTime);
+			}
 		}
 		return result;
 	}

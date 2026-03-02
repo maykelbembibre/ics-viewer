@@ -1,7 +1,5 @@
 package ics_viewer.gui;
 
-import java.io.File;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -11,7 +9,10 @@ import javax.swing.JMenuItem;
 import ics_viewer.gui.components.AppWindowContentPane;
 import ics_viewer.gui.components.PropertyBackedJFileChooser;
 import ics_viewer.gui.menu_items.CloseMenuItem;
+import ics_viewer.gui.menu_items.ExportToTxtMenuItem;
+import ics_viewer.gui.menu_items.ImportFromTxtMenuItem;
 import ics_viewer.gui.menu_items.OpenMenuItem;
+import ics_viewer.gui.menu_items.SaveToIcsMenuItem;
 import ics_viewer.logic.PropertyManager;
 
 public class AppWindow extends JFrame {
@@ -25,8 +26,6 @@ public class AppWindow extends JFrame {
 	 * An instance of a {@link JFileChooser to be re-used across the app.
 	 */
 	private final JFileChooser fileChooser = new PropertyBackedJFileChooser(this.propertyManager, "last.directory");
-	
-	private File file;
 	
 	/**
 	 * Creates the GUI and shows it. For thread safety, this constructor
@@ -45,9 +44,17 @@ public class AppWindow extends JFrame {
 		JMenu fileMenu = new JMenu("File");
 		JMenuItem openMenuItem = new OpenMenuItem(this);
 		fileMenu.add(openMenuItem);
-		menuBar.add(fileMenu);
+		JMenuItem saveMenuItem = new SaveToIcsMenuItem(this);
+		fileMenu.add(saveMenuItem);
 		JMenuItem closeMenuItem = new CloseMenuItem(this);
 		fileMenu.add(closeMenuItem);
+		menuBar.add(fileMenu);
+		JMenu importExportMenu = new JMenu("Import/export");
+		JMenuItem importFromTxtMenuItem = new ImportFromTxtMenuItem(this);
+		importExportMenu.add(importFromTxtMenuItem);
+		JMenuItem exportToTxtMenuItem = new ExportToTxtMenuItem(this);
+		importExportMenu.add(exportToTxtMenuItem);
+		menuBar.add(importExportMenu);
 		this.setJMenuBar(menuBar);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,17 +76,6 @@ public class AppWindow extends JFrame {
 		return this.contentPane;
 	}
 
-	public File getFile() {
-		return file;
-	}
-
-	public void setFile(File file) {
-		this.file = file;
-		if (file != null) {
-			this.setTitle(file.getName());
-		}
-	}
-	
 	/**
 	 * Returns the {@link JFileChooser} instance of this app window.
 	 * @return The {@link JFileChooser} instance.

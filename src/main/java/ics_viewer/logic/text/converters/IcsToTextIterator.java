@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
+import ics_viewer.logic.DateOperations;
 import ics_viewer.logic.text.DateTools;
 import ics_viewer.logic.text.Tools;
 import ics_viewer.logic.text.models.TxtCalendarEvent;
@@ -19,6 +20,7 @@ import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.Recur;
 import net.fortuna.ical4j.model.WeekDay;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.RRule;
@@ -57,14 +59,8 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		return result;
 	}
 	
-	private static ZonedDateTime toZonedDateTime(Temporal temporal) {
-		ZonedDateTime result;
-		if (temporal instanceof ZonedDateTime) {
-			result = (ZonedDateTime) temporal;
-		} else {
-			result = null;
-		}
-		return result;
+	private static ZonedDateTime toZonedDateTime(DateProperty<Temporal> dateProperty) {
+		return DateOperations.getZonedDateTime(dateProperty).orElse(null);
 	}
 	
 	private static TxtCalendarEvent convert(VEvent vEvent) {
@@ -111,17 +107,12 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		} else {
 			recurrence = null;
 		}
-		Optional<Property> opDtStartProp = vEvent.getProperty(Property.DTSTART);
-		Optional<Property> opDtEndProp = vEvent.getProperty(Property.DTEND);
-		ZonedDateTime zonedDateTime;
+		DtStart<Temporal> dtStart = vEvent.getDateTimeStart();
+		DtEnd<Temporal> dtEnd = vEvent.getDateTimeEnd();
+		ZonedDateTime zonedDateTimeFrom, zonedDateTimeTo;
 		String from, to;
-		if (opDtStartProp.isPresent() && opDtStartProp.get() instanceof DtStart) {
-			DtStart<?> dtStart = (DtStart<?>)opDtStartProp.get();
-			zonedDateTime = toZonedDateTime(dtStart.getDate());
-			from = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTime);
-		} else {
-			from = null;
-		}
+		zonedDateTimeFrom = toZonedDateTime(dtStart);
+		from = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTimeFrom);
 		Optional<Property> opSummaryProp = vEvent.getProperty(Property.SUMMARY);
 		Property summaryProp;
 		String summary;
@@ -135,13 +126,8 @@ public class IcsToTextIterator implements Iterator<TxtCalendarEvent> {
 		if (from == null || summary == null) {
 			result = null;
 		} else {
-			if (opDtEndProp.isPresent() && opDtEndProp.get() instanceof DtEnd) {
-				DtEnd<?> dtEnd = (DtEnd<?>)opDtEndProp.get();
-				zonedDateTime = toZonedDateTime(dtEnd.getDate());
-				to = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTime);
-			} else {
-				to = null;
-			}
+			zonedDateTimeTo = toZonedDateTime(dtEnd);
+			to = DateTools.formatTxtDateWithOrWithoutTime(zonedDateTimeTo);
 			Optional<Property> opDescriptionProp = vEvent.getProperty(Property.DESCRIPTION);
 			Property descriptionProp;
 			String description;
