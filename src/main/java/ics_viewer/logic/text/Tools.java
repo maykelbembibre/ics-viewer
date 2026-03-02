@@ -23,7 +23,7 @@ public class Tools {
 	private static final RuleBasedNumberFormat ORDINAL_STRING_FORMATTER = new RuleBasedNumberFormat(TXT_FILE_LOCALE, RuleBasedNumberFormat.SPELLOUT );
 	
 	public static String removeBlankLines(String string) {
-		return string.replaceAll("\\n{2,}", "\n");
+		return string.replaceAll("\\n{2,}", "\n").replaceAll("^\\n+|\\n+$", "");
 	}
 	
 	public static Integer toInteger(String string) {
