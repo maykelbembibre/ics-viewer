@@ -1,12 +1,10 @@
 package ics_viewer.logic.text;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,20 +44,6 @@ public class Tools {
 	    	}
 	    }
 	    return inversedMap;
-	}
-	
-	public static Date parseDate(String dateAsString, DateFormat dateFormat) {
-		Date date;
-		if (dateAsString == null) {
-			date = null;
-		} else {
-			try {
-				date = dateFormat.parse(dateAsString);
-			} catch (ParseException e) {
-				date = null;
-			}
-		}
-		return date;
 	}
 	
 	public static DayOfWeek parseDayOfWeek(String input) {

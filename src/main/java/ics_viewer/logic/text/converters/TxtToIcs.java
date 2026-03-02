@@ -51,15 +51,14 @@ public class TxtToIcs {
 	private static final Pattern TXT_DAY_PATTERN = Pattern.compile("(?:every\\s+(\\w+)\\s+(\\w+)|on\\s(\\w+)).*");
 	private static final UidGenerator UID_GENERATOR = new RandomUidGenerator();
 	private static final TimeZoneRegistry REGISTRY = TimeZoneRegistryFactory.getInstance().createRegistry();
-	private final TimeZone TIMEZONE;
-	private final VTimeZone V_TIME_ZONE;
+	private final VTimeZone vTimeZone;
 	private final TxtDateFormatter txtDateFormatter;
 	private final Calendar calendar = createCalendar();
 
 	public TxtToIcs(ZoneId zoneId) {
 		String zoneIdStringId = zoneId.getId();
-		this.TIMEZONE = REGISTRY.getTimeZone(zoneIdStringId);
-		this.V_TIME_ZONE = TIMEZONE.getVTimeZone();
+		TimeZone timeZone = REGISTRY.getTimeZone(zoneIdStringId);
+		this.vTimeZone = timeZone.getVTimeZone();
 		this.txtDateFormatter = new TxtDateFormatter(zoneId);
 	}
 	
@@ -96,7 +95,7 @@ public class TxtToIcs {
 			}
 	
 			// add timezone info..
-			meeting.add(V_TIME_ZONE.getTimeZoneId());
+			meeting.add(vTimeZone.getTimeZoneId());
 	
 			// generate unique identifier..
 			Uid uid = UID_GENERATOR.generateUid();
